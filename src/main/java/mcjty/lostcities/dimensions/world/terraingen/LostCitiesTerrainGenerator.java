@@ -626,7 +626,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
             char sup = info.getCompiledPalette().get(support);
             int x1 = transform.rotateX(0, 15);
             int z1 = transform.rotateZ(0, 15);
-            driver.current(x1, highwayGroundLevel-1, z1);
+            driver.current(x1, highwayGroundLevel - 1, z1);
             for (int y = 0; y < 40; y++) {
                 if (driver.getBlock() == airChar || driver.getBlock() == liquidChar) {
                     driver.block(sup);
@@ -638,7 +638,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
 
             int x2 = transform.rotateX(0, 0);
             int z2 = transform.rotateZ(0, 0);
-            driver.current(x2, highwayGroundLevel-1, z2);
+            driver.current(x2, highwayGroundLevel - 1, z2);
             for (int y = 0; y < 40; y++) {
                 if (driver.getBlock() == airChar || driver.getBlock() == liquidChar) {
                     driver.block(sup);
@@ -681,7 +681,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         CompiledPalette compiledPalette = info.getCompiledPalette();
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                driver.current(x, mainGroundLevel+1, z);
+                driver.current(x, mainGroundLevel + 1, z);
                 int l = 0;
                 while (l < bt.getSliceCount()) {
                     Character c = orientation == Orientation.X ? bt.getPaletteChar(x, l, z) : bt.getPaletteChar(z, l, x); // @todo general rotation system?
@@ -693,10 +693,16 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                             if (info.profile.GENERATE_LIGHTING) {
                                 info.addTorchTodo(driver.getCurrent(), orientations);
                             } else {
-                                b = airChar;        // No torch!
+                                b = driver.getBlock();        // No torch!
                             }
                         }
                     }
+                    if (b == airChar)
+                        if (!info.profile.AVOID_WATER) {
+                            b = driver.getY() <= info.waterLevel ? liquidChar : airChar;
+                        } else {
+                            b = airChar;
+                        }
                     driver.add(b);
                     l++;
                 }
@@ -1059,28 +1065,28 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                     driver.current(7, height + 1, z).add(rail).add(airChar).add(airChar);
                 }
                 for (int z = 0; z < 3; z++) {
-                    driver.current(5, height+2, z).add(rail).add(rail).add(rail);
+                    driver.current(5, height + 2, z).add(rail).add(rail).add(rail);
 
-                    driver.current(6, height+4, z).block(rail);
-                    driver.current(7, height+4, z).block(rail);
+                    driver.current(6, height + 4, z).block(rail);
+                    driver.current(7, height + 4, z).block(rail);
 
-                    driver.current(8, height+2, z).add(rail).add(rail).add(rail);
+                    driver.current(8, height + 2, z).add(rail).add(rail).add(rail);
                 }
             }
 
             if (info.getZmax().railDungeon != null) {
                 for (int z = 0; z < 5; z++) {
-                    driver.current(6, height+1, 15-z).add(rail).add(airChar).add(airChar);
-                    driver.current(7, height+1, 15-z).add(rail).add(airChar).add(airChar);
+                    driver.current(6, height + 1, 15 - z).add(rail).add(airChar).add(airChar);
+                    driver.current(7, height + 1, 15 - z).add(rail).add(airChar).add(airChar);
                 }
                 for (int z = 0; z < 4; z++) {
-                    driver.current(5, height+2, 15-z).add(rail).add(rail).add(rail);
+                    driver.current(5, height + 2, 15 - z).add(rail).add(rail).add(rail);
 
-                    driver.current(6, height+4, 15-z).block(rail);
+                    driver.current(6, height + 4, 15 - z).block(rail);
 
-                    driver.current(7, height+4, 15-z).block(rail);
+                    driver.current(7, height + 4, 15 - z).block(rail);
 
-                    driver.current(8, height+2, 15-z).add(rail).add(rail).add(rail);
+                    driver.current(8, height + 2, 15 - z).add(rail).add(rail).add(rail);
                 }
             }
         }
@@ -1097,16 +1103,16 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                 case STATION_EXTENSION_UNDERGROUND:
                 case HORIZONTAL: {
                     if (railInfo.getRails() == 1) {
-                        driver.current(0, height+1, 5);
+                        driver.current(0, height + 1, 5);
                         for (int x = 0; x < 16; x++) {
                             driver.block(rail).incX();
                         }
-                        driver.current(0, height+1, 9);
+                        driver.current(0, height + 1, 9);
                         for (int x = 0; x < 16; x++) {
                             driver.block(rail).incX();
                         }
                     } else {
-                        driver.current(0, height+1, 7);
+                        driver.current(0, height + 1, 7);
                         for (int x = 0; x < 16; x++) {
                             driver.block(rail).incX();
                         }
@@ -1123,7 +1129,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                                 if (getRailChars().contains(driver.getBlock())) {
                                     driver.block(rail);
                                 }
-                                driver.current(x, y, 9);;
+                                driver.current(x, y, 9);
+                                ;
                                 if (getRailChars().contains(driver.getBlock())) {
                                     driver.block(rail);
                                 }
@@ -1536,7 +1543,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         int baseheight = (int) (info.getCityGroundLevel() + 1 + (info.ruinHeight * info.getNumFloors() * 6.0f));
 
         for (int x = 0; x < 16; ++x) {
-            zLoop: for (int z = 0; z < 16; ++z) {
+            zLoop:
+            for (int z = 0; z < 16; ++z) {
                 double v = ruinBuffer[x + z * 16];
                 int height = baseheight + (int) v;
                 if (height == 0) continue; // Ruins need to sit on something, and the void isn't something
@@ -1743,7 +1751,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                 } else {
                     ChunkHeightmap adjacentHeightmap = provider.getHeightmap(adjacent.chunkX, adjacent.chunkZ);
                     int minimumHeight = adjacentHeightmap.getMinimumHeight();
-                    adjacentY = Math.min(adjacentY, minimumHeight-2);
+                    adjacentY = Math.min(adjacentY, minimumHeight - 2);
                 }
 
                 if (adjacentY > 5) {
@@ -1768,7 +1776,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
             if (!borderNeedsConnectionToAdjacentChunk(info, x, z)) {
                 driver.current(x, info.getCityGroundLevel() + 1, z).block(wall);
             } else {
-                driver.current(x, info.getCityGroundLevel() + 1, z).block(airChar);
+                char b = info.getCityGroundLevel() + 1 <= waterLevel ? liquidChar : airChar;
+                driver.current(x, info.getCityGroundLevel() + 1, z).block(b);
             }
         }
     }
@@ -1843,7 +1852,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         if (height == 0) return; // Leaf blocks need to sit on something, and the void isn't something
         if (info.getXmin().hasBuilding) {
             for (int x = 0; x < info.profile.THICKNESS_OF_RANDOM_LEAFBLOCKS; x++) {
-                zLoop: for (int z = 0; z < 16; z++) {
+                zLoop:
+                for (int z = 0; z < 16; z++) {
                     driver.current(x, height, z);
                     // @todo can be more optimal? Only go down to non air in case random succeeds?
                     while (driver.getBlockDown() == airChar) {
@@ -1864,7 +1874,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         }
         if (info.getXmax().hasBuilding) {
             for (int x = 15 - info.profile.THICKNESS_OF_RANDOM_LEAFBLOCKS; x < 15; x++) {
-                zLoop: for (int z = 0; z < 16; z++) {
+                zLoop:
+                for (int z = 0; z < 16; z++) {
                     driver.current(x, height, z);
                     // @todo can be more optimal? Only go down to non air in case random succeeds?
                     while (driver.getBlockDown() == airChar) {
@@ -1885,7 +1896,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         }
         if (info.getZmin().hasBuilding) {
             for (int z = 0; z < info.profile.THICKNESS_OF_RANDOM_LEAFBLOCKS; z++) {
-                xLoop: for (int x = 0; x < 16; x++) {
+                xLoop:
+                for (int x = 0; x < 16; x++) {
                     driver.current(x, height, z);
                     // @todo can be more optimal? Only go down to non air in case random succeeds?
                     while (driver.getBlockDown() == airChar) {
@@ -1906,7 +1918,8 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         }
         if (info.getZmax().hasBuilding) {
             for (int z = 15 - info.profile.THICKNESS_OF_RANDOM_LEAFBLOCKS; z < 15; z++) {
-                xLoop: for (int x = 0; x < 16; x++) {
+                xLoop:
+                for (int x = 0; x < 16; x++) {
                     driver.current(x, height, z);
                     // @todo can be more optimal? Only go down to non air in case random succeeds?
                     while (driver.getBlockDown() == airChar) {
@@ -2205,7 +2218,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                                 b = filler;     // Filler from adjacent building
                                 break;
                         }
-                        driver.current(x, h+1, z).block(b);
+                        driver.current(x, h + 1, z).block(b);
                     }
                 }
             }
@@ -2225,7 +2238,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                 ChunkHeightmap adjacentHeightmap = provider.getHeightmap(adjacent.chunkX, adjacent.chunkZ);
                 int adjacentHeight = adjacentHeightmap.getAverageHeight();
                 if (adjacentHeight > 5) {
-                    if ((adjacentHeight-4) < info.getCityGroundLevel()) {
+                    if ((adjacentHeight - 4) < info.getCityGroundLevel()) {
                         return true;
                     }
                 }
@@ -2276,7 +2289,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                     int index = (x << 12) | (z << 8);
                     int height = heightmap.getHeight(x, z);
                     if (height > 1 && height < lowestLevel - 1) {
-                        driver.setBlockRange(x, height+1, z, lowestLevel, baseChar);
+                        driver.setBlockRange(x, height + 1, z, lowestLevel, baseChar);
                     }
                     // Also clear the inside of buildings to avoid geometry that doesn't really belong there
                     clearRange(info, x, z, lowestLevel, info.getCityGroundLevel() + info.getNumFloors() * 6, info.waterLevel > info.groundLevel);
@@ -2425,15 +2438,15 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
             driver.setBlockRange(x, height, 6, height + 3, filler);
             driver.setBlockRange(x, height, 9, height + 3, filler);
             driver.current(x, height, 7)
-                .add(filler)
-                .add(getDoor(info.doorBlock, false, false, EnumFacing.WEST))
-                .add(getDoor(info.doorBlock, true, false, EnumFacing.WEST))
-                .add(filler);
+                    .add(filler)
+                    .add(getDoor(info.doorBlock, false, false, EnumFacing.WEST))
+                    .add(getDoor(info.doorBlock, true, false, EnumFacing.WEST))
+                    .add(filler);
             driver.current(x, height, 8)
-                .add(filler)
-                .add(getDoor(info.doorBlock, false, true, EnumFacing.WEST))
-                .add(getDoor(info.doorBlock, true, true, EnumFacing.WEST))
-                .add(filler);
+                    .add(filler)
+                    .add(getDoor(info.doorBlock, false, true, EnumFacing.WEST))
+                    .add(getDoor(info.doorBlock, true, true, EnumFacing.WEST))
+                    .add(filler);
         }
         if (info.hasConnectionAtZ(f + info.floorsBelowGround)) {
             int z = 0;
@@ -2446,15 +2459,15 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
                 driver.setBlockRange(6, height, z, height + 3, filler);
                 driver.setBlockRange(9, height, z, height + 3, filler);
                 driver.current(7, height, z)
-                    .add(filler)
-                    .add(getDoor(info.doorBlock, false, true, EnumFacing.NORTH))
-                    .add(getDoor(info.doorBlock, true, true, EnumFacing.NORTH))
-                    .add(filler);
+                        .add(filler)
+                        .add(getDoor(info.doorBlock, false, true, EnumFacing.NORTH))
+                        .add(getDoor(info.doorBlock, true, true, EnumFacing.NORTH))
+                        .add(filler);
                 driver.current(8, height, z)
-                    .add(filler)
-                    .add(getDoor(info.doorBlock, false, false, EnumFacing.NORTH))
-                    .add(getDoor(info.doorBlock, true, false, EnumFacing.NORTH))
-                    .add(filler);
+                        .add(filler)
+                        .add(getDoor(info.doorBlock, false, false, EnumFacing.NORTH))
+                        .add(getDoor(info.doorBlock, true, false, EnumFacing.NORTH))
+                        .add(filler);
             }
         }
         if (hasConnectionWithBuildingMax(f, info, info.getZmax(), Orientation.Z)) {
@@ -2468,15 +2481,15 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
             driver.setBlockRange(6, height, z, height + 3, filler);
             driver.setBlockRange(9, height, z, height + 3, filler);
             driver.current(7, height, z)
-                .add(filler)
-                .add(getDoor(info.doorBlock, false, false, EnumFacing.SOUTH))
-                .add(getDoor(info.doorBlock, true, false, EnumFacing.SOUTH))
-                .add(filler);
+                    .add(filler)
+                    .add(getDoor(info.doorBlock, false, false, EnumFacing.SOUTH))
+                    .add(getDoor(info.doorBlock, true, false, EnumFacing.SOUTH))
+                    .add(filler);
             driver.current(8, height, z)
-                .add(filler)
-                .add(getDoor(info.doorBlock, false, true, EnumFacing.SOUTH))
-                .add(getDoor(info.doorBlock, true, true, EnumFacing.SOUTH))
-                .add(filler);
+                    .add(filler)
+                    .add(getDoor(info.doorBlock, false, true, EnumFacing.SOUTH))
+                    .add(getDoor(info.doorBlock, true, true, EnumFacing.SOUTH))
+                    .add(filler);
         }
     }
 
@@ -2484,25 +2497,25 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
         if (info.getXmin().hasXCorridor()) {
             int x = 0;
             for (int z = 7; z <= 10; z++) {
-                driver.setBlockRange(x, info.groundLevel-5, z, info.groundLevel-3, airChar);
+                driver.setBlockRange(x, info.groundLevel - 5, z, info.groundLevel - 3, airChar);
             }
         }
         if (info.getXmax().hasXCorridor()) {
             int x = 15;
             for (int z = 7; z <= 10; z++) {
-                driver.setBlockRange(x, info.groundLevel-5, z, info.groundLevel-3, airChar);
+                driver.setBlockRange(x, info.groundLevel - 5, z, info.groundLevel - 3, airChar);
             }
         }
         if (info.getZmin().hasXCorridor()) {
             int z = 0;
             for (int x = 7; x <= 10; x++) {
-                driver.setBlockRange(x, info.groundLevel-5, z, info.groundLevel-3, airChar);
+                driver.setBlockRange(x, info.groundLevel - 5, z, info.groundLevel - 3, airChar);
             }
         }
         if (info.getZmax().hasXCorridor()) {
             int z = 15;
             for (int x = 7; x <= 10; x++) {
-                driver.setBlockRange(x, info.groundLevel-5, z, info.groundLevel-3, airChar);
+                driver.setBlockRange(x, info.groundLevel - 5, z, info.groundLevel - 3, airChar);
             }
         }
     }
