@@ -59,10 +59,10 @@ repositories {
 }
 
 dependencies {
-    deobfCompile "team.chisel.ctm:CTM:MC${minecraft_version}-${ctm_version}"
-    deobfCompile "team.chisel:Chisel:MC${minecraft_version}-${chisel_version}"
-    deobfCompile "mcjty.theoneprobe:TheOneProbe-${top_version}"
-    deobfCompile "mezz.jei:jei_${jei_version}"
+    compile "team.chisel.ctm:CTM:MC${minecraft_version}-${ctm_version}"
+    compile "team.chisel:Chisel:MC${minecraft_version}-${chisel_version}"
+    compile "mcjty.theoneprobe:TheOneProbe-${top_version}"
+    compile "mezz.jei:jei_${jei_version}"
 }
 
 jar {
